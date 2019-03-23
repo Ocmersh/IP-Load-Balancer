@@ -32,11 +32,11 @@ class L2Forwarding(app_manager.RyuApp):
 
         print("Packet ( 0 ) Received on Port("+temp+"): Eth "+temp)
 
-        if ARP == true:
+        if not ARP:
             print("ARP")
-        if IPV4 == true:
+        if not IPV4:
             print("IPV4")
-        if IPV6 == true:
+        if not IPV6:
             print("IPV6")
 
         print("From IP:"+temp)
@@ -44,13 +44,13 @@ class L2Forwarding(app_manager.RyuApp):
         print("From MAC:"+temp)
         print("To   MAC:"+temp)
 
-        if ARP == true:
+        if not ARP:
             print("NOT IPV4")
             print("NOT IPV6")
-        if IPV4 == true:
+        if not IPV4:
             print("NOT ARP")
             print("NOT IPV6")
-        if IPV6 == true:
+        if not IPV6:
             print("NOT IPV4")
             print("NOT ARP")
         
