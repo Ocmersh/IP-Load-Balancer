@@ -60,5 +60,7 @@ class L2Forwarding(app_manager.RyuApp):
         print("Controller Switch ("+temp)
         print("Address, Port: ('"+temp+"', "+temp+")")
 
+
+        ofp_parser = dpath.ofproto_parser
         out = ofp_parser.OFPPacketOut(datapath=dp,in_port=msg.in_port,actions=actions)
         dp.send_msg(out)
