@@ -10,7 +10,6 @@ from ryu.lib.packet import packet, ethernet, ether_types, arp, tcp, ipv4, ipv6
 
 class L2Forwarding(app_manager.RyuApp):
     OFP_VERSIONS = [ofproto_v1_3.OFP_VERSION]
-    global n
 
     def __init__(self, *args, **kwargs):
         super(L2Forwarding, self).__init__(*args, **kwargs)
@@ -67,3 +66,5 @@ class L2Forwarding(app_manager.RyuApp):
 
         out = ofp_parser.OFPPacketOut(datapath=dp,in_port=msg.in_port,actions=actions)
         dp.send_msg(out)
+
+global n
