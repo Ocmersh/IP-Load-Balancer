@@ -62,6 +62,6 @@ class L2Forwarding(app_manager.RyuApp):
 
         
         topath = dpath.ofproto_parser
-        actions = [topath.OFPActionOutput(ofp.OFPP_FLOOD)]
+        actions = [topath.OFPActionOutput(ofproto.OFPP_FLOOD)]
         out = topath.OFPPacketOut(datapath=dpath,in_port=msg.in_port,actions=actions)
         dpath.send_msg(out)
