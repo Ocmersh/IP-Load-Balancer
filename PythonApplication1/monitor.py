@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 
-
-import random
 from ryu.base import app_manager
 from ryu.controller import ofp_event
-from ryu.controller.handler import CONFIG_DISPATCHER, MAIN_DISPATCHER, set_ev_cls
-from ryu.ofproto import ofproto_v1_3, ether, inet
-from ryu.lib.packet import packet, ethernet, ether_types, arp, tcp, ipv4, ipv6
+from ryu.controller.handler import MAIN_DISPATCHER, set_ev_cls
+from ryu.ofproto import ofproto_v1_3
+from ryu.lib.packet import packet
+from ryu.lib.packet import ethernet
+from ryu.lib.packet import arp
+from ryu.lib.packet import ipv4
+from ryu.lib.packet import ipv6
 
 class L2Forwarding(app_manager.RyuApp):
     OFP_VERSIONS = [ofproto_v1_3.OFP_VERSION]
@@ -17,19 +19,22 @@ class L2Forwarding(app_manager.RyuApp):
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
     def curr_packet(self, ev):
 
+        #GET MESSAGE DATA
         msg = ev.msg
         dpath = msg.datapath
-        ofproto = dpath.ofproto
-        pkt = packet.Packet(msg.data)
-        eth = pkt.get_protocol(ethernet.ethernet)
-        dst = eth.dst
-        src = eth.src
-
+        opflow = dpath.ofproto
+        packetData = packet.Packet(msg.data)
+        ethProt = packetData.get_protocol(ethernet.ethernet)
+        desto = ethProt.dst
+        source = ethProt.src
+        
+        #IDENTIFY PROT
         ARP = True
         IPV4 = False
         IPV6 = False
         temp = "0.0"
-
+    
+        #PRINT MESSAGE DATA
         print("Packet ( 0 ) Received on Port("+temp+"): Eth "+temp)
 
         if not ARP:
@@ -60,8 +65,8 @@ class L2Forwarding(app_manager.RyuApp):
         print("Controller Switch ("+temp)
         print("Address, Port: ('"+temp+"', "+temp+")")
 
-        
+        #FORWARD PACKET
         topath = dpath.ofproto_parser
-        actions = [topath.OFPActionOutput(ofproto.OFPP_FLOOD)]
-        out = topath.OFPPacketOut(datapath=dpath,in_port=ofproto.OFPP_ANY,actions=actions)
+        actions = [topath.OFPActionOutput(opflow.OFPP_FLOOD)]
+        out = topath.OFPPacketOut(datapath=dpath,in_port=opflow.OFPP_ANY,actions=actions)
         dpath.send_msg(out)
