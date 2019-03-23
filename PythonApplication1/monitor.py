@@ -1,13 +1,21 @@
 #!/usr/bin/env python3
 
+
+import random
 from ryu.base import app_manager
 from ryu.controller import ofp_event
-from ryu.controller.handler import MAIN_DISPATCHER
+from ryu.controller.handler import CONFIG_DISPATCHER, MAIN_DISPATCHER
 from ryu.controller.handler import set_ev_cls
-from ryu.ofproto import ofproto_v1_0
+from ryu.ofproto import ofproto_v1_3
+from ryu.lib.packet import packet
+from ryu.lib.packet import ethernet
+from ryu.lib.packet import ether_types, arp, tcp, ipv4
+from ryu.ofproto import ether, inet
+from ryu.ofproto import ofproto_v1_3
 
 class L2Forwarding(app_manager.RyuApp):
     OFP_VERSIONS = [ofproto_v1_3.OFP_VERSION]
+    n = 0
 
     def __init__(self, *args, **kwargs):
         super(L2Forwarding, self).__init__(*args, **kwargs)
@@ -27,7 +35,8 @@ class L2Forwarding(app_manager.RyuApp):
         IPV6 = False
         temp = "0.0"
 
-        print("Packet ( "+temp+") Received on Port("+temp+"): Eth "+temp)
+        print("Packet ( "+n+") Received on Port("+temp+"): Eth "+temp)
+        n += 1
 
         if ARP == true:
             print("ARP")
