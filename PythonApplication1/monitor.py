@@ -4,14 +4,10 @@
 import random
 from ryu.base import app_manager
 from ryu.controller import ofp_event
-from ryu.controller.handler import CONFIG_DISPATCHER, MAIN_DISPATCHER
-from ryu.controller.handler import set_ev_cls
-from ryu.ofproto import ofproto_v1_3
-from ryu.lib.packet import packet
-from ryu.lib.packet import ethernet
-from ryu.lib.packet import ether_types, arp, tcp, ipv4
-from ryu.ofproto import ether, inet
-from ryu.ofproto import ofproto_v1_3
+from ryu.controller.handler import CONFIG_DISPATCHER, MAIN_DISPATCHER, set_ev_cls
+from ryu.ofproto import ofproto_v1_3, ether, inet
+from ryu.lib.packet import packet, ethernet, ether_types, arp, tcp, ipv4, ipv6
+
 
 class L2Forwarding(app_manager.RyuApp):
     OFP_VERSIONS = [ofproto_v1_3.OFP_VERSION]
