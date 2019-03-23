@@ -61,7 +61,7 @@ class L2Forwarding(app_manager.RyuApp):
         print("Address, Port: ('"+temp+"', "+temp+")")
 
         
-        ofp_parser = dpath.ofproto_parser
-        actions = [ofp_parser.OFPActionOutput(ofp.OFPP_FLOOD)]
-        out = ofp_parser.OFPPacketOut(datapath=dpath,in_port=msg.in_port,actions=actions)
+        topath = dpath.ofproto_parser
+        actions = [topath.OFPActionOutput(ofp.OFPP_FLOOD)]
+        out = topath.OFPPacketOut(datapath=dpath,in_port=msg.in_port,actions=actions)
         dpath.send_msg(out)
