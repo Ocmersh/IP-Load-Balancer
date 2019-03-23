@@ -8,16 +8,19 @@ from ryu.controller.handler import CONFIG_DISPATCHER, MAIN_DISPATCHER, set_ev_cl
 from ryu.ofproto import ofproto_v1_3, ether, inet
 from ryu.lib.packet import packet, ethernet, ether_types, arp, tcp, ipv4, ipv6
 
-
 class L2Forwarding(app_manager.RyuApp):
     OFP_VERSIONS = [ofproto_v1_3.OFP_VERSION]
-    n = 0
+    global n
 
     def __init__(self, *args, **kwargs):
         super(L2Forwarding, self).__init__(*args, **kwargs)
 
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
     def curr_packet(self, ev):
+
+        if n is None:
+            n = 0
+
         msg = ev.msg
         dpath = msg.datapath
         ofproto = dpath.ofproto
