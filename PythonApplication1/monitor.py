@@ -17,9 +17,6 @@ class L2Forwarding(app_manager.RyuApp):
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
     def curr_packet(self, ev):
 
-        if n is None:
-            n = 0
-
         msg = ev.msg
         dpath = msg.datapath
         ofproto = dpath.ofproto
@@ -33,8 +30,7 @@ class L2Forwarding(app_manager.RyuApp):
         IPV6 = False
         temp = "0.0"
 
-        print("Packet ( "+n+") Received on Port("+temp+"): Eth "+temp)
-        n += 1
+        print("Packet ( 0 ) Received on Port("+temp+"): Eth "+temp)
 
         if ARP == true:
             print("ARP")
@@ -66,5 +62,3 @@ class L2Forwarding(app_manager.RyuApp):
 
         out = ofp_parser.OFPPacketOut(datapath=dp,in_port=msg.in_port,actions=actions)
         dp.send_msg(out)
-
-global n
