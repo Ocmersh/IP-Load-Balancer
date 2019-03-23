@@ -24,7 +24,7 @@ class L2Forwarding(app_manager.RyuApp):
         eth = pkt.get_protocol(ethernet.ethernet)
         dst = eth.dst
         src = eth.src
-        
+
         ARP = True
         IPV4 = False
         IPV6 = False
@@ -53,14 +53,14 @@ class L2Forwarding(app_manager.RyuApp):
         if not IPV6:
             print("NOT IPV4")
             print("NOT ARP")
-        
+
         print("ETH")
         print("From MAC:"+temp)
         print("To   MAC:"+temp)
         print("Controller Switch ("+temp)
         print("Address, Port: ('"+temp+"', "+temp+")")
 
-
+        actions = [ofp_parser.OFPActionOutput(ofp.OFPP_FLOOD)]
         ofp_parser = dpath.ofproto_parser
-        out = ofp_parser.OFPPacketOut(datapath=dp,in_port=msg.in_port,actions=actions)
-        dp.send_msg(out)
+        out = ofp_parser.OFPPacketOut(datapath=dpath,in_port=msg.in_port,actions=actions)
+        dpath.send_msg(out)
