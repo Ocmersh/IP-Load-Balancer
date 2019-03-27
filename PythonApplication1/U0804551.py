@@ -18,12 +18,12 @@ class IPLoadBalancer(app_manager.RyuApp):
         self.portMac = {}
         self.backList = []
         self.frontList = []
-        self.frontList.append = {"10.0.0.1":"00:00:00:00:00:01",'port':1}
-        self.frontList.append = {"10.0.0.2":"00:00:00:00:00:02",'port':2}
-        self.frontList.append = {"10.0.0.3":"00:00:00:00:00:03",'port':3}
-        self.frontList.append = {"10.0.0.4":"00:00:00:00:00:04",'port':4}
-        self.backList.append = {"10.0.0.5":"00:00:00:00:00:05",'port':5}
-        self.backList.append = {"10.0.0.6":"00:00:00:00:00:06",'port':6}
+        self.frontList.append({"10.0.0.1":"00:00:00:00:00:01",'port':1})
+        self.frontList.append({"10.0.0.2":"00:00:00:00:00:02",'port':2})
+        self.frontList.append({"10.0.0.3":"00:00:00:00:00:03",'port':3})
+        self.frontList.append({"10.0.0.4":"00:00:00:00:00:04",'port':4})
+        self.backList.append({"10.0.0.5":"00:00:00:00:00:05",'port':5})
+        self.backList.append({"10.0.0.6":"00:00:00:00:00:06",'port':6})
         self.current = backList[0]
         self. next = backList[0]
 
