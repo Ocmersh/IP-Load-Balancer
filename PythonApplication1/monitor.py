@@ -25,7 +25,7 @@ class L2Forwarding(app_manager.RyuApp):
         opParse = dpath.ofproto_parser
         in_port = msg.match['in_port']
         packetData = packet.Packet(msg.data)
-        ethProt = packetData.get_protocol(ethernet.ethernet)[0]
+        ethProt = packetData.get_protocol(ethernet.ethernet)
         desto = ethProt.dst
         source = ethProt.src
         self.mac_to_port.setdefault(dpath.id, {})
