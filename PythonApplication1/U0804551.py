@@ -9,9 +9,6 @@ from ryu.lib.of_config import *
 
 class IPLoadBalancer(app_manager.RyuApp):
     OFP_VERSIONS = [ofproto_v1_3.OFP_VERSION]
-    next = ""
-    current = ""
-    virtualIP = "10.0.0.15"
 
     def __init__(self, *args, **kwargs):
         super(IPLoadBalancer, self).__init__(*args, **kwargs)
@@ -25,7 +22,8 @@ class IPLoadBalancer(app_manager.RyuApp):
         self.backList.append({"10.0.0.5":"00:00:00:00:00:05",'port':5})
         self.backList.append({"10.0.0.6":"00:00:00:00:00:06",'port':6})
         self.current = backList[0]
-        self. next = backList[0]
+        self.next = backList[0]
+        self.virtualIP = "10.0.0.15"
 
 
 
