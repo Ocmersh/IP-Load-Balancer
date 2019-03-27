@@ -34,10 +34,10 @@ class L2Forwarding(app_manager.RyuApp):
         if dst in self.mac_to_port[dpath.id]:
             out_port = self.mac_to_port[dpath.id][dst]
         else:
-            out_port = ofproto.OFPP_FLOOD
+            out_port = opflow.OFPP_FLOOD
         actions = [opParse.OFPActionOutput(out_port)]
         data = None
-        if msg.buffer_id == ofproto.OFP_NO_BUFFER:
+        if msg.buffer_id == opflow.OFP_NO_BUFFER:
             data = msg.data
         self.mac_to_port[dpath.id][src] = in_port
         out = opParse.OFPPacketOut(datapath=dpath, buffer_id=msg.buffer_id,in_port=in_port, actions=actions, data=data)
