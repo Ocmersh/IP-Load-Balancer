@@ -23,10 +23,11 @@ class L2Forwarding(app_manager.RyuApp):
         dpath = msg.datapath
         opflow = dpath.ofproto
         opParse = dpath.ofproto_parser
+        portnum = msg.match['portnum']
         packetData = packet.Packet(msg.data)
         ethProt = packetData.get_protocol(ethernet.ethernet)[0]
         desto = ethProt.dst
         source = ethProt.src
         self.mac_to_port[dpath.id][src] = portnum
-        out = opParse.OFPPacketOut(datapath=dpath,buffer_id=msg.buffer_id,in_port=portnum,actions=actions,data=msg.data)
+        out = opParse.OFPPacketOut(datapath=dpath,buffer_id=msg.buffer_id,portnum=portnum,actions=actions,data=msg.data)
         dpath.send_msg(out)
