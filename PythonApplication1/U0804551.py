@@ -6,7 +6,6 @@ from ryu.controller.handler import MAIN_DISPATCHER, set_ev_cls,CONFIG_DISPATCHER
 from ryu.ofproto import ofproto_v1_3
 from ryu.lib.packet import packet,ethernet,arp,ipv4,ipv6
 from ryu.lib.of_config import *
-from ryu.contrib.oslo.config import *
 
 class IPLoadBalancer(app_manager.RyuApp):
     OFP_VERSIONS = [ofproto_v1_3.OFP_VERSION]
