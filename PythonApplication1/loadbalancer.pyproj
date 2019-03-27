@@ -5,7 +5,7 @@
     <ProjectGuid>e05d80c4-9c5c-46be-b4e3-268eb68dbd28</ProjectGuid>
     <ProjectHome>
     </ProjectHome>
-    <StartupFile>monitor.py</StartupFile>
+    <StartupFile>U0804551.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -22,7 +22,7 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="monitor.py" />
+    <Compile Include="U0804551.py" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
