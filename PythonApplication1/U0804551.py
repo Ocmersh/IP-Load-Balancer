@@ -18,9 +18,6 @@ class IPLoadBalancer(app_manager.RyuApp):
     def __init__(self, *args, **kwargs):
         super(IPLoadBalancer, self).__init__(*args, **kwargs)
         self.portMac = {}
-        self.current = self.initialIP
-        self.next = self.initialIP
-        self.nodeList.append = self.initialIP
 
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
     def currentPacket(self, ev):
