@@ -19,18 +19,14 @@ class L2Forwarding(app_manager.RyuApp):
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
     def curr_packet(self, ev):
 
-        #GET MESSAGE DATA
         msg = ev.msg
         dpath = msg.datapath
         opflow = dpath.ofproto
         opParse = dpath.ofproto_parser
         packetData = packet.Packet(msg.data)
-        ethProt = packetData.get_protocol(ethernet.ethernet)
+        ethProt = packetData.get_protocol(ethernet.ethernet)[0]
         desto = ethProt.dst
         source = ethProt.src
-        out = opParse.OFPPacketOut(datapath=dpath,in_port=msg.in_port,actions=actions)
+        self.mac_to_port[dpath.id][src] = portnum
+        out = opParse.OFPPacketOut(datapath=dpath,buffer_id=msg.buffer_id,in_port=portnum,actions=actions,data=msg.data)
         dpath.send_msg(out)
-
-        #FORWARD PACKET
-        #topath = dpath.ofproto_parser
-        #actions = [topath.OFPActionOutput(opflow.OFPP_FLOOD)]
