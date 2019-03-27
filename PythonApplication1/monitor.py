@@ -15,6 +15,7 @@ class L2Forwarding(app_manager.RyuApp):
 
     def __init__(self, *args, **kwargs):
         super(L2Forwarding, self).__init__(*args, **kwargs)
+        self.mac_to_port = {}
 
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
     def curr_packet(self, ev):
