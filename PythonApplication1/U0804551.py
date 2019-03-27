@@ -9,8 +9,8 @@ from ryu.lib.of_config import *
 
 class IPLoadBalancer(app_manager.RyuApp):
     OFP_VERSIONS = [ofproto_v1_3.OFP_VERSION]
-    current = []
-    next = []
+    nodeList = ""
+    next = ""
     initialMac = "00:00:00:00:00:01"
     initialIP = "10.0.0.1"
     virtualIP = "10.0.0.15"
@@ -20,6 +20,7 @@ class IPLoadBalancer(app_manager.RyuApp):
         self.portMac = {}
         self.current = self.initialIP
         self.next = self.initialIP
+        self.nodeList.append = self.initialIP
 
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
     def currentPacket(self, ev):
