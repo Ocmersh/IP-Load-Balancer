@@ -9,8 +9,6 @@ from ryu.lib.of_config import *
 
 class IPLoadBalancer(app_manager.RyuApp):
     OFP_VERSIONS = [ofproto_v1_3.OFP_VERSION]
-    backList = []
-    frontList = []
     next = ""
     current = ""
     virtualIP = "10.0.0.15"
@@ -18,18 +16,14 @@ class IPLoadBalancer(app_manager.RyuApp):
     def __init__(self, *args, **kwargs):
         super(IPLoadBalancer, self).__init__(*args, **kwargs)
         self.portMac = {}
-        self.frontList.append = {"10.0.0.1":"00:00:00:00:00:01"}
-        self.frontList.append = {"10.0.0.2":"00:00:00:00:00:02"}
-        self.frontList.append = {"10.0.0.3":"00:00:00:00:00:03"}
-        self.frontList.append = {"10.0.0.4":"00:00:00:00:00:04"}
-        self.backList.append = {"10.0.0.5":"00:00:00:00:00:05"}
-        self.backList.append = {"10.0.0.6":"00:00:00:00:00:06"}
-        frontList[0].port = 1
-        frontList[1].port = 2
-        frontList[2].port = 3
-        frontList[3].port = 4
-        frontList[4].port = 5
-        frontList[5].port = 6
+        self.backList = []
+        self.frontList = []
+        self.frontList.append = {"10.0.0.1":"00:00:00:00:00:01",'port':1}
+        self.frontList.append = {"10.0.0.2":"00:00:00:00:00:02",'port':2}
+        self.frontList.append = {"10.0.0.3":"00:00:00:00:00:03",'port':3}
+        self.frontList.append = {"10.0.0.4":"00:00:00:00:00:04",'port':4}
+        self.backList.append = {"10.0.0.5":"00:00:00:00:00:05",'port':5}
+        self.backList.append = {"10.0.0.6":"00:00:00:00:00:06",'port':6}
         self.current = backList[0]
         self. next = backList[0]
 
