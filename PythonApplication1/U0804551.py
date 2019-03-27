@@ -21,8 +21,8 @@ class IPLoadBalancer(app_manager.RyuApp):
         self.frontList.append({'ip':"10.0.0.4", 'mac':"00:00:00:00:00:04",'port':4})
         self.backList.append({'ip':"10.0.0.5", 'mac':"00:00:00:00:00:05",'port':5})
         self.backList.append({'ip':"10.0.0.6", 'mac':"00:00:00:00:00:06",'port':6})
-        self.current = backList[0][ip]
-        self.next = backList[0][ip]
+        self.current = self.backList[0]['ip']
+        self.next = self.backList[0]['ip']
         self.virtualIP = "10.0.0.15"
 
 
