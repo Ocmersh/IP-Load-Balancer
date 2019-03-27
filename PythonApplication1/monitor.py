@@ -27,46 +27,9 @@ class L2Forwarding(app_manager.RyuApp):
         ethProt = packetData.get_protocol(ethernet.ethernet)
         desto = ethProt.dst
         source = ethProt.src
-        
-        #IDENTIFY PROT
-        ARP = True
-        IPV4 = False
-        IPV6 = False
-        temp = "0.0"
-    
-        #PRINT MESSAGE DATA
-        print("Packet ( 0 ) Received on Port("+temp+"): Eth "+temp)
-
-        if not ARP:
-            print("ARP")
-        if not IPV4:
-            print("IPV4")
-        if not IPV6:
-            print("IPV6")
-
-        print("From IP:"+temp)
-        print("To   IP:"+temp)
-        print("From MAC:"+temp)
-        print("To   MAC:"+temp)
-
-        if not ARP:
-            print("NOT IPV4")
-            print("NOT IPV6")
-        if not IPV4:
-            print("NOT ARP")
-            print("NOT IPV6")
-        if not IPV6:
-            print("NOT IPV4")
-            print("NOT ARP")
-
-        print("ETH")
-        print("From MAC:"+temp)
-        print("To   MAC:"+temp)
-        print("Controller Switch ("+temp)
-        print("Address, Port: ('"+temp+"', "+temp+")")
+        out = ofp_parser.OFPPacketOut(datapath=dpath,in_port=msg.in_port,actions=actions)
+        dpath.send_msg(out)
 
         #FORWARD PACKET
-        topath = dpath.ofproto_parser
-        actions = [topath.OFPActionOutput(opflow.OFPP_FLOOD)]
-        out = topath.OFPPacketOut(datapath=dpath,in_port=opflow.OFPP_ANY,actions=actions)
-        dpath.send_msg(out)
+        #topath = dpath.ofproto_parser
+        #actions = [topath.OFPActionOutput(opflow.OFPP_FLOOD)]
