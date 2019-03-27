@@ -23,7 +23,7 @@ class L2Forwarding(app_manager.RyuApp):
         msg = ev.msg
         dpath = msg.datapath
         opflow = dpath.ofproto
-        opParse = dpath.ofpoto_parser
+        opParse = dpath.ofproto_parser
         packetData = packet.Packet(msg.data)
         ethProt = packetData.get_protocol(ethernet.ethernet)
         desto = ethProt.dst
