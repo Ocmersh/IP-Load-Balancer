@@ -4,7 +4,8 @@ from ryu.base import app_manager
 from ryu.controller import ofp_event
 from ryu.controller.handler import MAIN_DISPATCHER, set_ev_cls
 from ryu.ofproto import ofproto_v1_3
-from ryu.lib.packet import packet,ethernet,arp,ipv4,ipv6
+from ryu.lib.packet.packet import Packet
+from ryu.lib.packet import packet,ethernet,arp,ether_types
 from ryu import cfg
 
 class IPLoadBalancer(app_manager.RyuApp):
@@ -16,7 +17,7 @@ class IPLoadBalancer(app_manager.RyuApp):
     ip2mac = {}
     ip2port = {}
     currentHostIP = 0
-    nextHostIP = 0
+    nextHostIP = 1
 
     def __init__(self, *args, **kwargs):
         super(IPLoadBalancer, self).__init__(*args, **kwargs)
@@ -38,72 +39,89 @@ class IPLoadBalancer(app_manager.RyuApp):
             else:
                 self.back = CONF.back
 
-        for initFront in range(0,self.front):
+        for initFront in range(1,self.front+1):
             if initFront < 10:
                 self.serverList.append(('10.0.0.{}'.format(initFront),'00:00:00:00:00:0{}'.format(initFront),initFront))
                 self.ip2mac['10.0.0.{}'.format(initFront)] = '00:00:00:00:00:0{}'.format(initFront)
-                self.ip2port['10.0.0.{}'.format(initFront)] = initFront
             else:
                 self.serverList.append(('10.0.0.'.format(initFront),'00:00:00:00:00:{}'.format(initFront),initFront))
                 self.ip2mac['10.0.0.{}'.format(initFront)] = '00:00:00:00:00:{}'.format(initFront)
-                self.ip2port['10.0.0.{}'.format(initFront)] = initFront
-        for initBack in range(self.front+1,self.front+1+self.back):
-            if initBack+self.front < 10:
-                self.serverList.append(('10.0.0.{}'.format(initBack),'00:00:00:00:00:0{}'.format(initBack+self.front),initBack+self.front))
-                self.ip2mac['10.0.0.{}'.format(initFront)] = '00:00:00:00:00:0{}'.format(initFront)
-                self.ip2port['10.0.0.{}'.format(initFront)] = initFront
+
+            self.ip2port['10.0.0.{}'.format(initFront)] = initFront
+
+        for initBack in range(self.front+1,self.front+self.back+1):
+            if initBack < 10:
+                self.serverList.append(('10.0.0.{}'.format(initBack),'00:00:00:00:00:0{}'.format(initBack),initBack))
+                self.ip2mac['10.0.0.{}'.format(initBack)] = '00:00:00:00:00:0{}'.format(initBack)
             else:
-                self.serverList.append(('10.0.0.'.format(initBack+self.front),'00:00:00:00:00:{}'.format(initBack+self.front),initBack+self.front))
-                self.ip2mac['10.0.0.{}'.format(initBack+self.front)] = '00:00:00:00:00:{}'.format(initBack+self.front)
-                self.ip2port['10.0.0.{}'.format(initBack+self.front)] = initBack+self.front
+                self.serverList.append(('10.0.0.{}'.format(initBack),'00:00:00:00:00:{}'.format(initBack),initBack))
+                self.ip2mac['10.0.0.{}'.format(initBack)] = '00:00:00:00:00:{}'.format(initBack)
+
+            self.ip2port['10.0.0.{}'.format(initBack)] = initBack
 
         self.currentHostIP = self.serverList[0]
-        self.nextHostIP = self.serverList[0]
-        
+        self.nextHostIP = 1
+
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
     def currentPacket(self, ev):
         inbound = ev.msg #
         packetData = packet.Packet(inbound.data)
-        self.forwarding(inbound.datapath, packetData.get_protocol(ethernet.ethernet), packetData, inbound.datapath.ofproto, inbound.datapath.ofproto_parser, inbound.match['in_port'])
-        self.returning(inbound.datapath, packetData.get_protocol(ethernet.ethernet), packetData, inbound.datapath.ofproto, inbound.datapath.ofproto_parser, inbound.match['in_port'])
-       
-        arpInbound = inbound.datapath.get_protocol(arp.arp)
-        arpDestination = arpInbound.src_ip
-        arpSource = arpInbound.dst_ip
-        arpMac = packetData.src
 
-        if arpInbound in self.serverList:
-            inboundMac = self.ip2mac[arpSource]
-        else:
-            X=1
-            #DO SOMETHING
+        if packetData.get_protocol(ethernet.ethernet) == ether_types.ETH_TYPE_ARP:
+            self.forwarding(inbound.datapath, packetData.get_protocol(ethernet.ethernet), packetData, inbound.datapath.ofproto, inbound.datapath.ofproto_parser, inbound.match['in_port'])
+            self.returning(inbound.datapath, packetData.get_protocol(ethernet.ethernet), packetData, inbound.datapath.ofproto, inbound.datapath.ofproto_parser, inbound.match['in_port'])
 
-        outProtocolE = ethernet.ethernet(arpMac, arpSource, ether_types.ETH_TYPE_ARP)
-        outProtocolA = arp.arp(1, 0x0800, 6, 4, 2, inboundMac, arpSource, arpDestination, arpMac)
-        newPacket = Packet()
-        newPacket.add_protocol(outProtocolE)
-        newPacket.add_protocol(outProtocolA)
-        newPacket.serialize()
-        outbound = [inbound.datapath.ofproto_parser.OFPActionOutput(inbound.datapath.ofproto.OFPP_IN_PORT)]
-        outboundData = inbound.datapath.ofproto_parser.OFPPacketOUT(datapath=inbound.datapath, buffer_id=inbound.datapath.ofproto.OFP_NO_BUFFER, in_port=inbound.match['in_port'], actions=outbound, data=newPacket.data)
-        inbound.datapath.send_msg(outboundData)
-        self.current = self.next
+            arpInbound = inbound.datapath.get_protocol(arp.arp)
+            arpDestination = arpInbound.src_ip
+            arpSource = arpInbound.dst_ip
+            arpMac = packetData.src
+
+            for request in range (self.front+1,self.front+self.back+1):
+                if request-(self.front+1) < self.back:
+                    if arpDestination == self.serverList[request]:
+                        outBoundMac = self.ip2mac[arpSource]
+                else:
+                    outBoundMac = self.serverList[self.currentHostIP][1]
+
+                    self.nextHostIP += 1
+                    if self.nextHostIP > self.back:
+                        self.nextHostIP = 1
+
+                    break
+
+            outEthernet = ethernet.ethernet(arpMac, arpSource, ether_types.ETH_TYPE_ARP)
+            outArp = arp.arp(1, 0x0800, 6, 4, 2, outBoundMac, arpSource, arpDestination, arpMac)
+            outPacket = Packet()
+            outPacket.add_protocol(outEthernet)
+            outPacket.add_protocol(outArp)
+            outPacket.serialize()
+            outbound = [inbound.datapath.ofproto_parser.OFPActionOutput(inbound.datapath.ofproto.OFPP_IN_PORT)]
+            outboundData = inbound.datapath.ofproto_parser.OFPPacketOUT(datapath=inbound.datapath, buffer_id=inbound.datapath.ofproto.OFP_NO_BUFFER, in_port=inbound.match['in_port'], actions=outbound, data=outPacket.data)
+            inbound.datapath.send_msg(outboundData)
+            self.currentHostIP = self.nextHostIP
+
+        return
 
     def forwarding(self, packet, currentPath, Eprotocol, openflow, parsedData, in_port):
         inbound = packet.get_protocol(arp.arp).src_ip
-        if inbound in self.serverList:
-            return;
+
+        for serverIp in range (self.front+1,self.front+self.back+1):
+            if serverIp-(self.front+1) > self.back:
+                break
+            else:
+                if inbound == self.serverList[serverIp][0]:
+                    return
+
         parsing = parsedData.OFPMatch(in_port=in_port,ipv4_dst=self.switchIP,eth_type=0x0800)
-        outbound = [parsedData.OFPActionSetField(ipv4_src=self.switchIP),parsedData.OFPActionOutput(in_port)]
-        intitiate = [parsedData.OFPInstructionActions(openflow.OFPIT_APPLY_ACTIONS, outbound)]
-        outboundData = parsedData.OFPFlowMod(datapath=inbound,priority=0,buffer_id=openflow.OFP_NO_BUFFER, match=parsing, instructions=intitiate)
+        outbound = [parsedData.OFPActionSetField(ipv4_src=self.currentHostIP),parsedData.OFPActionOutput(self.ip2port[self.currentHostIP])]
+        instructions = [parsedData.OFPInstructionActions(openflow.OFPIT_APPLY_ACTIONS, outbound)]
+        outboundData = parsedData.OFPFlowMod(datapath=currentPath,priority=0,buffer_id=openflow.OFP_NO_BUFFER, match=parsing, instructions=instructions)
         currentPath.send_msg(outboundData)
 
     def returning(self, packet, currentPath, Eprotocol, openflow, parsedData, in_port):
-        #TOEDIT
-        parsing = parsedData.OFPMatch(in_port=in_port,ipv4_dst=self.switchIP,eth_type=0x0800)
+        inbound = packet.get_protocol(arp.arp).src_ip
+        parsing = parsedData.OFPMatch(in_port=self.ip2port[self.currentHostIP],ipv4_src=self.currentHostIP,ipv4_dst=inbound,eth_type=0x0800)
         outbound = [parsedData.OFPActionSetField(ipv4_src=self.switchIP),parsedData.OFPActionOutput(in_port)]
-        intitiate = [parsedData.OFPInstructionActions(openflow.OFPIT_APPLY_ACTIONS, outbound)]
-        outboundData = parsedData.OFPFlowMod(datapath=inbound,priority=0,buffer_id=openflow.OFP_NO_BUFFER, match=parsing, instructions=intitiate)
+        instructions = [parsedData.OFPInstructionActions(openflow.OFPIT_APPLY_ACTIONS, outbound)]
+        outboundData = parsedData.OFPFlowMod(datapath=currentPath,priority=0,buffer_id=openflow.OFP_NO_BUFFER, match=parsing, instructions=instructions)
         currentPath.send_msg(outboundData)
-
