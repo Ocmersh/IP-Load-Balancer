@@ -68,19 +68,17 @@ class IPLoadBalancer(app_manager.RyuApp):
             self.ip2port['10.0.0.{}'.format(self.front+initBack)] = self.front+initBack
 
         #current server is the first backend server
-        self.currentHostIP = self.backList[0]
+        self.currentHostIP = self.backList[0][0]
         self.nextHostIP = 1
+
         for x in range(len(self.frontList)):
             print (self.frontList[x])
         for x in range(len(self.backList)):
             print (self.backList[x])
 
         print(self.currentHostIP)
-
-        for x in range(len(self.ip2mac)):
-            print (self.ip2mac[x])
-        for x in range(len(self.ip2port)):
-            print (self.ip2port[x])
+        print (self.ip2mac)
+        print (self.ip2port)
 
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
     def currentPacket(self, ev):
