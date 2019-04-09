@@ -71,15 +71,6 @@ class IPLoadBalancer(app_manager.RyuApp):
         self.currentHostIP = self.backList[0][0]
         self.nextHostIP = 1
 
-        for x in range(len(self.frontList)):
-            print (self.frontList[x])
-        for x in range(len(self.backList)):
-            print (self.backList[x])
-
-        print(self.currentHostIP)
-        print (self.ip2mac)
-        print (self.ip2port)
-
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
     def currentPacket(self, ev):
         #get basic data from packet
@@ -89,7 +80,6 @@ class IPLoadBalancer(app_manager.RyuApp):
         #send a response
         if packetData.get_protocol(ethernet.ethernet) == ether_types.ETH_TYPE_ARP:
             self.forwarding(inbound.datapath, packetData.get_protocol(ethernet.ethernet), packetData, inbound.datapath.ofproto, inbound.datapath.ofproto_parser, inbound.match['in_port'])
-            self.returning(inbound.datapath, packetData.get_protocol(ethernet.ethernet), packetData, inbound.datapath.ofproto, inbound.datapath.ofproto_parser, inbound.match['in_port'])
 
             #Get ARP info
             arpInbound = inbound.datapath.get_protocol(arp.arp)
@@ -98,19 +88,12 @@ class IPLoadBalancer(app_manager.RyuApp):
             arpMac = packetData.src
 
             #If the ARP request is from the back servers, set to return to host's IP
-            for request in range (1,self.back+1):
-                if request-(self.front+1) < self.back:
-                    if arpDestination == self.frontList[request]:
-                        outBoundMac = self.ip2mac[arpSource]
-                #ELse choose MAC address from next server
-                else:
-                    outBoundMac = self.backList[self.currentHostIP][1]
-
-                    self.nextHostIP += 1
-                    if self.nextHostIP > self.back:
-                        self.nextHostIP = 1
-
+            for request in range (0,self.back):
+                if arpDestination == self.backList[request][0]:
+                    outBoundMac = self.ip2mac[arpSource]
                     break
+            else:
+                outBoundMac = self.ip2mac[self.currentHostIP]
 
             #create new packet and send to decided IP
             outEthernet = ethernet.ethernet(arpMac, arpSource, ether_types.ETH_TYPE_ARP)
@@ -122,35 +105,38 @@ class IPLoadBalancer(app_manager.RyuApp):
             outbound = [inbound.datapath.ofproto_parser.OFPActionOutput(inbound.datapath.ofproto.OFPP_IN_PORT)]
             outboundData = inbound.datapath.ofproto_parser.OFPPacketOUT(datapath=inbound.datapath, buffer_id=inbound.datapath.ofproto.OFP_NO_BUFFER, in_port=inbound.match['in_port'], actions=outbound, data=outPacket.data)
             inbound.datapath.send_msg(outboundData)
-            self.currentHostIP = self.nextHostIP
+
+            #iterate to next back server
+            self.currentHostIP = self.backList[self.nextHostIP][0]
+            self.nextHostIP += 1
+            if self.nextHostIP > back:
+                self.nextHostIP = 1
 
         return
 
-    #Forwards the ARP request to the next server
-    def forwarding(self, packet, currentPath, Eprotocol, openflow, parsedData, in_port):
-        inbound = packet.get_protocol(arp.arp).src_ip
-
-        #if from back IP's, return
-        for serverIp in range (1,self.back+1):
-            if serverIp-(self.front+1) > self.back:
-                break
-            else:
-                if inbound == self.backList[serverIp][0]:
-                    return
-
-        #parse and forward response
-        parsing = parsedData.OFPMatch(in_port=in_port,ipv4_dst=self.switchIP,eth_type=0x0800)
-        outbound = [parsedData.OFPActionSetField(ipv4_src=self.currentHostIP),parsedData.OFPActionOutput(self.ip2port[self.currentHostIP])]
-        instructions = [parsedData.OFPInstructionActions(openflow.OFPIT_APPLY_ACTIONS, outbound)]
-        outboundData = parsedData.OFPFlowMod(datapath=currentPath,priority=0,buffer_id=openflow.OFP_NO_BUFFER, match=parsing, instructions=instructions)
-        currentPath.send_msg(outboundData)
-    
     #A return response that reverses the forward response
-    def returning(self, packet, currentPath, Eprotocol, openflow, parsedData, in_port):
+    def returning(self, inbound, packet, currentPath, Eprotocol, openflow, parsedData, in_port):
         #parse and return response
-        inbound = packet.get_protocol(arp.arp).src_ip
         parsing = parsedData.OFPMatch(in_port=self.ip2port[self.currentHostIP],ipv4_src=self.currentHostIP,ipv4_dst=inbound,eth_type=0x0800)
         outbound = [parsedData.OFPActionSetField(ipv4_src=self.switchIP),parsedData.OFPActionOutput(in_port)]
         instructions = [parsedData.OFPInstructionActions(openflow.OFPIT_APPLY_ACTIONS, outbound)]
         outboundData = parsedData.OFPFlowMod(datapath=currentPath,priority=0,buffer_id=openflow.OFP_NO_BUFFER, match=parsing, instructions=instructions)
         currentPath.send_msg(outboundData)
+
+            #Forwards the ARP request to the next server
+    def forwarding(self, packet, currentPath, Eprotocol, openflow, parsedData, in_port):
+        inbound = packet.get_protocol(arp.arp).src_ip
+
+        #if from back IP's, return
+        for serverIp in range (0,self.back):
+            print(self.backList[serverIp][0])
+            if inbound == self.backList[serverIp][0]:
+                return
+
+        #parse and forward response
+        parsing = parsedData.OFPMatch(in_port=in_port,ipv4_dst=self.switchIP,eth_type=0x0800)
+        outbound = [parsedData.OFPActionSetField(ipv4_dst=self.currentHostIP),parsedData.OFPActionOutput(self.ip2port[self.currentHostIP])]
+        instructions = [parsedData.OFPInstructionActions(openflow.OFPIT_APPLY_ACTIONS, outbound)]
+        outboundData = parsedData.OFPFlowMod(datapath=currentPath,priority=0,buffer_id=openflow.OFP_NO_BUFFER, match=parsing, instructions=instructions)
+        currentPath.send_msg(outboundData)
+        returning(self, inbound, packet, currentPath, Eprotocol, openflow, parsedData, in_port)
