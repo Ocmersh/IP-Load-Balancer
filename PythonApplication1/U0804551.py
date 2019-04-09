@@ -76,6 +76,8 @@ class IPLoadBalancer(app_manager.RyuApp):
         #get basic data from packet
         inbound = ev.msg #
         packetData = packet.Packet(inbound.data)
+        tempPath = inbound.datapath
+        parser = tempPath.ofproto_parser
 
         #send a response
         if packetData.get_protocol(ethernet.ethernet).ethertype == ether_types.ETH_TYPE_ARP:
@@ -102,8 +104,8 @@ class IPLoadBalancer(app_manager.RyuApp):
             outPacket.add_protocol(outEthernet)
             outPacket.add_protocol(outArp)
             outPacket.serialize()
-            outbound = [ev.msg.datapath.ofproto_parser.OFPActionOutput(inbound.datapath.ofproto.OFPP_IN_PORT)]
-            outboundData = ev.msg.datapath.ofproto_parser.OFPPacketOUT(datapath=inbound.datapath, buffer_id=inbound.datapath.ofproto.OFP_NO_BUFFER, in_port=inbound.match['in_port'], actions=outbound, data=outPacket.data)
+            outbound = [inbound.datapath.ofproto_parser.OFPActionOutput(inbound.datapath.ofproto.OFPP_IN_PORT)]
+            outboundData = parser.OFPPacketOUT(datapath=inbound.datapath, buffer_id=inbound.datapath.ofproto.OFP_NO_BUFFER, in_port=inbound.match['in_port'], actions=outbound, data=outPacket.data)
             inbound.datapath.send_msg(outboundData)
 
             #iterate to next back server
