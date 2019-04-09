@@ -102,8 +102,9 @@ class IPLoadBalancer(app_manager.RyuApp):
             outPacket.add_protocol(outEthernet)
             outPacket.add_protocol(outArp)
             outPacket.serialize()
-            outbound = [inbound.datapath.ofproto_parser.OFPActionOutput(inbound.datapath.ofproto.OFPP_IN_PORT)]
-            outboundData = inbound.datapath.ofproto_parser.OFPPacketOUT(datapath=inbound.datapath, buffer_id=inbound.datapath.ofproto.OFP_NO_BUFFER, in_port=inbound.match['in_port'], actions=outbound, data=outPacket.data)
+            temp = inbound.datapath.ofproto_parser
+            outbound = [temp.OFPActionOutput(inbound.datapath.ofproto.OFPP_IN_PORT)]
+            outboundData = temp.OFPPacketOUT(datapath=inbound.datapath, buffer_id=inbound.datapath.ofproto.OFP_NO_BUFFER, in_port=inbound.match['in_port'], actions=outbound, data=outPacket.data)
             inbound.datapath.send_msg(outboundData)
 
             #iterate to next back server
