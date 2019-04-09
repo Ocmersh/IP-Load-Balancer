@@ -1,7 +1,16 @@
 #!/usr/bin/env python3
+
 # Author: Bryce Hansen - U0804551
+# Date:   April 8th, 2019
+# Course: CS 4480, University of Utah, School of Computing
+# Copyright: CS 4480 and Bryce Hansen - This work may not be copied for use in Academic Coursework.
 #
-#This simple load balancer can handle up to a total of 99 total servers and clients.
+# I, Bryce Hansen, certify that I wrote this code from scratch and did not copy it in part or whole from 
+# another source.  Any references used in the completion of the assignment are cited in my README file.
+#
+# File Contents
+#
+#    [This simple load balancer can handle up to a total of 99 total servers and clients.]
 
 from ryu.base import app_manager
 from ryu.controller import ofp_event
@@ -67,6 +76,11 @@ class IPLoadBalancer(app_manager.RyuApp):
 
             self.ip2port['10.0.0.{}'.format(self.front+initBack)] = self.front+initBack
 
+        for x in range(len(self.frontList)):
+            print (self.frontList[x])
+        for x in range(len(self.backList)):
+            print (self.backList[x])
+
         #current server is the first backend server
         self.currentHostIP = self.backList[0][0]
         self.nextHostIP = 1
@@ -106,8 +120,8 @@ class IPLoadBalancer(app_manager.RyuApp):
             outPacket.add_protocol(outArp)
             outPacket.serialize()
             outbound = [parser.OFPActionOutput(tempProto.OFPP_IN_PORT)]
-            outboundData = parser.OFPPacketOUT(datapath=inbound.datapath, buffer_id=inbound.datapath.ofproto.OFP_NO_BUFFER, in_port=inbound.match['in_port'], actions=outbound, data=outPacket.data)
-            inbound.datapath.send_msg(outboundData)
+            outboundData = parser.OFPPacketOUT(datapath=tempPath, buffer_id=tempProto.OFP_NO_BUFFER, in_port=inbound.match['in_port'], actions=outbound, data=outPacket.data)
+            tempPath.send_msg(outboundData)
 
             #iterate to next back server
             self.currentHostIP = self.backList[self.nextHostIP][0]
