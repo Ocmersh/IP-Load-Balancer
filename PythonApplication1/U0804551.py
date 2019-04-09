@@ -82,7 +82,7 @@ class IPLoadBalancer(app_manager.RyuApp):
             self.forwarding(packetData, inbound.datapath, packetData.get_protocol(ethernet.ethernet), inbound.datapath.ofproto, inbound.datapath.ofproto_parser, inbound.match['in_port'])
 
             #Get ARP info
-            arpInbound = inbound.datapath.get_protocol(arp.arp)
+            arpInbound = packetData.get_protocol(arp.arp)
             arpDestination = arpInbound.src_ip
             arpSource = arpInbound.dst_ip
             arpMac = packetData.src
