@@ -77,11 +77,12 @@ class IPLoadBalancer(app_manager.RyuApp):
         inbound = ev.msg #
         packetData = packet.Packet(inbound.data)
         tempPath = inbound.datapath
+        tempProto = tempPath.ofproto
         parser = tempPath.ofproto_parser
 
         #send a response
         if packetData.get_protocol(ethernet.ethernet).ethertype == ether_types.ETH_TYPE_ARP:
-            self.forwarding(packetData, inbound.datapath, packetData.get_protocol(ethernet.ethernet), inbound.datapath.ofproto, inbound.datapath.ofproto_parser, inbound.match['in_port'])
+            self.forwarding(packetData, tempPath, packetData.get_protocol(ethernet.ethernet), tempProto, parser, inbound.match['in_port'])
 
             #Get ARP info
             arpInbound = packetData.get_protocol(arp.arp)
@@ -104,7 +105,7 @@ class IPLoadBalancer(app_manager.RyuApp):
             outPacket.add_protocol(outEthernet)
             outPacket.add_protocol(outArp)
             outPacket.serialize()
-            outbound = [inbound.datapath.ofproto_parser.OFPActionOutput(inbound.datapath.ofproto.OFPP_IN_PORT)]
+            outbound = [parser.OFPActionOutput(tempProto.OFPP_IN_PORT)]
             outboundData = parser.OFPPacketOUT(datapath=inbound.datapath, buffer_id=inbound.datapath.ofproto.OFP_NO_BUFFER, in_port=inbound.match['in_port'], actions=outbound, data=outPacket.data)
             inbound.datapath.send_msg(outboundData)
 
