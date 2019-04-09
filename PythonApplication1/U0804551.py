@@ -78,7 +78,7 @@ class IPLoadBalancer(app_manager.RyuApp):
         packetData = packet.Packet(inbound.data)
 
         #send a response
-        if packetData.get_protocol(ethernet.ethernet) == ether_types.ETH_TYPE_ARP:
+        if packetData.get_protocol(ethernet.ethernet).ethertype == ether_types.ETH_TYPE_ARP:
             self.forwarding(inbound.datapath, packetData.get_protocol(ethernet.ethernet), packetData, inbound.datapath.ofproto, inbound.datapath.ofproto_parser, inbound.match['in_port'])
 
             #Get ARP info
