@@ -58,14 +58,14 @@ class IPLoadBalancer(app_manager.RyuApp):
             self.ip2port['10.0.0.{}'.format(initFront)] = initFront
 
         for initBack in range(1,self.back+1):
-            if initBack < 10:
-                self.backList.append(('10.0.0.{}'.format(initBack),'00:00:00:00:00:0{}'.format(initBack),initBack))
-                self.ip2mac['10.0.0.{}'.format(initBack)] = '00:00:00:00:00:0{}'.format(initBack)
+            if self.front+initBack < 10:
+                self.backList.append(('10.0.0.{}'.format(self.front+initBack),'00:00:00:00:00:0{}'.format(self.front+initBack),self.front+initBack))
+                self.ip2mac['10.0.0.{}'.format(self.front+initBack)] = '00:00:00:00:00:0{}'.format(self.front+initBack)
             else:
-                self.backList.append(('10.0.0.{}'.format(initBack),'00:00:00:00:00:{}'.format(initBack),initBack))
-                self.ip2mac['10.0.0.{}'.format(initBack)] = '00:00:00:00:00:{}'.format(initBack)
+                self.backList.append(('10.0.0.{}'.format(self.front+initBack),'00:00:00:00:00:{}'.format(self.front+initBack),self.front+initBack))
+                self.ip2mac['10.0.0.{}'.format(self.front+initBack)] = '00:00:00:00:00:{}'.format(self.front+initBack)
 
-            self.ip2port['10.0.0.{}'.format(initBack)] = initBack
+            self.ip2port['10.0.0.{}'.format(self.front+initBack)] = self.front+initBack
 
         #current server is the first backend server
         self.currentHostIP = self.backList[0]
