@@ -139,4 +139,4 @@ class IPLoadBalancer(app_manager.RyuApp):
         instructions = [parsedData.OFPInstructionActions(openflow.OFPIT_APPLY_ACTIONS, outbound)]
         outboundData = parsedData.OFPFlowMod(datapath=currentPath,priority=0,buffer_id=openflow.OFP_NO_BUFFER, match=parsing, instructions=instructions)
         currentPath.send_msg(outboundData)
-        self.returning(self, inbound, packet, currentPath, Eprotocol, openflow, parsedData, in_port)
+        self.returning(inbound, packet, currentPath, Eprotocol, openflow, parsedData, in_port)
