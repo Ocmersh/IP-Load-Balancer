@@ -83,8 +83,8 @@ class IPLoadBalancer(app_manager.RyuApp):
 
             #Get ARP info
             arpInbound = packetData.get_protocol(arp.arp)
-            arpDestination = arpInbound.src_ip
             arpSource = arpInbound.dst_ip
+            arpDestination = arpInbound.src_ip
             arpMac = packetData.get_protocol(ethernet.ethernet).src
 
             #If the ARP request is from the back servers, set to return to host's IP
@@ -96,8 +96,8 @@ class IPLoadBalancer(app_manager.RyuApp):
                 outBoundMac = self.ip2mac[self.currentHostIP]
 
             #create new packet and send to decided IP
-            outEthernet = ethernet.ethernet(arpMac, arpSource, ether_types.ETH_TYPE_ARP)
-            outArp = arp.arp(1, 0x0800, 6, 4, 2, outBoundMac, arpSource, arpDestination, arpMac)
+            outEthernet = ethernet.ethernet(arpMac, outBoundMac, ether_types.ETH_TYPE_ARP)
+            outArp = arp.arp(1, 0x0800, 6, 4, 2, outBoundMac, arpSource, arpMac, arpDestination)
             outPacket = Packet()
             outPacket.add_protocol(outEthernet)
             outPacket.add_protocol(outArp)
@@ -129,7 +129,6 @@ class IPLoadBalancer(app_manager.RyuApp):
 
         #if from back IP's, return
         for serverIp in range (0,self.back):
-            print(self.backList[serverIp][0])
             if inbound == self.backList[serverIp][0]:
                 return
 
