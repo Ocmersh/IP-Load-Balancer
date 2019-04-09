@@ -75,7 +75,7 @@ class IPLoadBalancer(app_manager.RyuApp):
         for x in range(len(self.backList)):
             print (self.backList[x])
 
-        print(currentHostIP)
+        print(self.currentHostIP)
 
         for x in range(len(self.ip2mac)):
             print (self.ip2mac[x])
