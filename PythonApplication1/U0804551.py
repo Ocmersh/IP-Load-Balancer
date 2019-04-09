@@ -79,7 +79,7 @@ class IPLoadBalancer(app_manager.RyuApp):
 
         #send a response
         if packetData.get_protocol(ethernet.ethernet).ethertype == ether_types.ETH_TYPE_ARP:
-            self.forwarding(inbound.datapath, packetData.get_protocol(ethernet.ethernet), packetData, inbound.datapath.ofproto, inbound.datapath.ofproto_parser, inbound.match['in_port'])
+            self.forwarding(packetData, inbound.datapath, packetData.get_protocol(ethernet.ethernet), inbound.datapath.ofproto, inbound.datapath.ofproto_parser, inbound.match['in_port'])
 
             #Get ARP info
             arpInbound = inbound.datapath.get_protocol(arp.arp)
@@ -124,7 +124,7 @@ class IPLoadBalancer(app_manager.RyuApp):
         currentPath.send_msg(outboundData)
 
             #Forwards the ARP request to the next server
-    def forwarding(self, currentPath, Eprotocol, packet, openflow, parsedData, in_port):
+    def forwarding(self, packet, currentPath, Eprotocol, openflow, parsedData, in_port):
         inbound = packet.get_protocol(arp.arp).src_ip
 
         #if from back IP's, return
