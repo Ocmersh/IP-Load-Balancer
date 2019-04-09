@@ -85,7 +85,7 @@ class IPLoadBalancer(app_manager.RyuApp):
             arpInbound = packetData.get_protocol(arp.arp)
             arpDestination = arpInbound.src_ip
             arpSource = arpInbound.dst_ip
-            arpMac = packetData.src
+            arpMac = packetData.get_protocol(ethernet.ethernet).src
 
             #If the ARP request is from the back servers, set to return to host's IP
             for request in range (0,self.back):
