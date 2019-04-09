@@ -75,6 +75,13 @@ class IPLoadBalancer(app_manager.RyuApp):
         for x in range(len(self.backList)):
             print (self.backList[x])
 
+        print(currentHostIP)
+
+        for x in range(len(self.ip2mac)):
+            print (self.ip2mac[x])
+        for x in range(len(self.ip2port)):
+            print (self.ip2port[x])
+
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
     def currentPacket(self, ev):
         #get basic data from packet
