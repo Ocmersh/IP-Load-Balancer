@@ -109,7 +109,7 @@ class IPLoadBalancer(app_manager.RyuApp):
             #iterate to next back server
             self.currentHostIP = self.backList[self.nextHostIP][0]
             self.nextHostIP += 1
-            if self.nextHostIP > back:
+            if self.nextHostIP > self.back:
                 self.nextHostIP = 1
 
         return
@@ -139,4 +139,4 @@ class IPLoadBalancer(app_manager.RyuApp):
         instructions = [parsedData.OFPInstructionActions(openflow.OFPIT_APPLY_ACTIONS, outbound)]
         outboundData = parsedData.OFPFlowMod(datapath=currentPath,priority=0,buffer_id=openflow.OFP_NO_BUFFER, match=parsing, instructions=instructions)
         currentPath.send_msg(outboundData)
-        returning(self, inbound, packet, currentPath, Eprotocol, openflow, parsedData, in_port)
+        self.returning(self, inbound, packet, currentPath, Eprotocol, openflow, parsedData, in_port)
