@@ -70,8 +70,10 @@ class IPLoadBalancer(app_manager.RyuApp):
         #current server is the first backend server
         self.currentHostIP = self.backList[0]
         self.nextHostIP = 1
-        print(*self.frontList, sep = "\n")
-        print(*self.backList, sep = "\n")
+        for x in range(len(self.frontList)):
+            print (self.frontList[x])
+        for x in range(len(self.backList)):
+            print (self.backList[x])
 
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
     def currentPacket(self, ev):
